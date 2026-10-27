@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>속도와 가속도 개념망</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: animated motion-streak background (canvas) behind one centered glass card: header, step 1 class, step 2 group, go button */
+:root{
+  --bg1:#0b1f3a; --bg2:#123d6b; --bg3:#0e6e86; --streak:150,210,255;
+  --surface:rgba(255,255,255,.94); --ink:#14202c; --muted:#56636f; --line:#d3dbe3;
+  --accent:#1f5fa8; --accent-ink:#ffffff; --warn:#9a5b10; --task-bg:#eef4fb;
+  --display:"Gowun Batang",Georgia,serif;
+  --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg1:#050b14; --bg2:#0b2140; --bg3:#0a3f52; --streak:120,190,255;
+  --surface:rgba(22,30,40,.92); --ink:#e7edf3; --muted:#9eabb8; --line:#33414e;
+  --accent:#6aa6ec; --accent-ink:#0d1620; --warn:#e3a95a; --task-bg:#1d2b3b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg1:#050b14; --bg2:#0b2140; --bg3:#0a3f52; --streak:120,190,255;
+  --surface:rgba(22,30,40,.92); --ink:#e7edf3; --muted:#9eabb8; --line:#33414e;
+  --accent:#6aa6ec; --accent-ink:#0d1620; --warn:#e3a95a; --task-bg:#1d2b3b; color-scheme:dark}
+html,body{min-height:100%}
+body{margin:0;background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 55%,var(--bg3) 100%) fixed;background-color:var(--bg1);
+  color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding-block:40px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.card{background:var(--surface);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  border-radius:18px;padding:28px clamp(18px,5vw,32px);box-shadow:0 20px 50px rgba(0,0,0,.35);
+  display:flex;flex-direction:column;gap:26px}
+.eyebrow{font-size:13px;letter-spacing:.08em;color:var(--muted);font-weight:500}
+h1{font-family:var(--display);font-size:clamp(26px,6vw,36px);line-height:1.25;margin:6px 0 0;text-wrap:balance}
+h1 small{display:block;font-family:var(--body);font-weight:500;font-size:16px;color:var(--muted);margin-top:8px}
+.task{margin:16px 0 0;background:var(--task-bg);border-radius:10px;padding:14px 16px;font-size:15px;line-height:1.7}
+section{display:flex;flex-direction:column;gap:12px}
+h2{font-size:15px;font-weight:600;margin:0;display:flex;align-items:baseline;gap:8px}
+h2 .n{font-family:var(--mono);color:var(--accent)}
+.grid{display:grid;gap:8px}
+.classes{grid-template-columns:repeat(3,1fr)}
+.groups{grid-template-columns:repeat(5,1fr)}
+@media (max-width:420px){.groups{gap:6px}}
+button.opt{font:inherit;font-weight:600;color:var(--ink);background:transparent;border:1.5px solid var(--line);
+  border-radius:10px;padding:14px 4px;cursor:pointer;transition:border-color .15s,background .15s}
+.classes button.opt{font-size:20px;padding:18px 4px}
+button.opt:hover:not(:disabled){border-color:var(--accent)}
+button.opt[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button.opt:disabled{opacity:.4;cursor:not-allowed}
+button.opt:focus-visible,a.go:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.go{display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;font-weight:600;font-size:18px;
+  border-radius:12px;padding:18px;background:var(--accent);color:var(--accent-ink);transition:filter .15s}
+.go:hover{filter:brightness(1.08)}
+.go[aria-disabled="true"]{background:var(--line);color:var(--muted);pointer-events:none}
+.status{font-size:14px;color:var(--muted);text-align:center;margin:0;min-height:1.5em}
+.status.warn{color:var(--warn)}
+footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="wrap">
+ <div class="card">
+  <header>
+    <div class="eyebrow">2026학년도 · 미적분Ⅰ</div>
+    <h1>속도와 가속도 단원<small>개념망(Concept Map) 작성하기</small></h1>
+    <p class="task">3~5번 슬라이드에서 여러분이 탐구한 내용을 수직선 위의 점(물체)의 움직임을 ‘위치–속도–가속도’ 개념과 연결하여 간단하게 개념망(Concept Map)으로 표현해 보세요.</p>
+  </header>
+
+  <section aria-labelledby="h-class">
+    <h2 id="h-class"><span class="n">1</span>학급을 고르세요</h2>
+    <div class="grid classes" id="classes"></div>
+  </section>
+
+  <section aria-labelledby="h-group">
+    <h2 id="h-group"><span class="n">2</span>조를 고르세요</h2>
+    <div class="grid groups" id="groups"></div>
+  </section>
+
+  <section>
+    <a class="go" id="go" href="#" aria-disabled="true">학급과 조를 먼저 고르세요</a>
+    <p class="status" id="status" aria-live="polite"></p>
+  </section>
+
+  <footer>버튼을 누르면 우리 조 패들렛으로 이동합니다. 다른 조의 패들렛에는 글을 쓰지 마세요.</footer>
+ </div>
+</div>
+
+<script>
+const B = "https://padlet.com/ukinoyousei/card-breakout-room/";
+const P89 = ["jtsE1fokKFrTK0XorswfI","lTjEQPpvsLzso0kdeOBpe","XjGbRVNhY3eoA_OhlXDKR","16fjR2Uj7qzV8BBf_mmY4","xezSZ18nNXerTse2SY8YF","YdRg67M34_rGsqbdd4auD","ZhgRip_O8ek4jEzpvuDyl","N0C5MC0RP9B_NlWxy1PNG","4i03vfJSx862HM55eIXWk","yk-UlHI456TlyGgo8HsHN"];
+const P10 = ["CVUuRh1qWCHnH975YEruP","q8QsPX66rN8dipyziwPLi","MSJFGj_3vdzj9vTVpcfGb","do1qx-uVw0jlhFMCjGkhl","4z51eB4XPJDcbij-t7bxf","PsFM2sX1k9jnli_mnBcll","pWaKWxadaWOyBH-RKrY6f","p6p-z0e2_kmj5mywFUPHa","8zo92ePx-g9VgnS9yaV4N","FBF5eMF4k8PhOQfk9S-AH"];
+const LINKS = {
+  8: P89.map(p => B + "Y0KryDdMXXrlyPBb-page:" + p),
+  9: P89.map(p => B + "m41pvaepkkaRvxVO-page:" + p),
+  10: P10.map(p => B + "l5Q9AkGJ22LZAGJ4-page:" + p)
+};
+let cls = null, grp = null;
+const $c = document.getElementById("classes"), $g = document.getElementById("groups"),
+      $go = document.getElementById("go"), $s = document.getElementById("status");
+
+function btn(label, id, onClick){
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "opt"; b.id = id; b.textContent = label;
+  b.setAttribute("aria-pressed","false"); b.addEventListener("click", onClick); return b;
+}
+[8,9,10].forEach(n => $c.appendChild(btn(n + "반", "c" + n, () => { cls = n; render(); })));
+for (let i = 1; i <= 10; i++) $g.appendChild(btn(i + "조", "g" + i, () => { grp = i; render(); }));
+
+function render(){
+  $c.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.id === "c" + cls));
+  $g.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.id === "g" + grp));
+  const url = cls && grp ? LINKS[cls][grp - 1] : null;
+  if (url){
+    $go.href = url; $go.removeAttribute("aria-disabled");
+    $go.textContent = cls + "반 " + grp + "조 패들렛으로 이동 →";
+  } else {
+    $go.href = "#"; $go.setAttribute("aria-disabled","true");
+    $go.textContent = !cls && !grp ? "학급과 조를 먼저 고르세요" : !cls ? "학급을 고르세요" : "조를 고르세요";
+  }
+}
+render();
+
+/* 배경: 점점 빨라지는 속도선(가속 운동 느낌) */
+(function(){
+  const cv = document.getElementById("bg"), ctx = cv.getContext("2d");
+  const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let W, H, lines = [];
+  function rgb(){ return getComputedStyle(document.documentElement).getPropertyValue("--streak").trim() || "150,210,255"; }
+  function size(){
+    const d = Math.min(window.devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; ctx.setTransform(d,0,0,d,0,0);
+    const n = Math.round(Math.min(70, W / 14));
+    lines = Array.from({length:n}, () => mk(Math.random() * W));
+  }
+  function mk(x){
+    return { x, y: Math.random() * H, v: 0.4 + Math.random() * 1.2, a: 0.01 + Math.random() * 0.04,
+             w: 0.6 + Math.random() * 1.6, o: 0.12 + Math.random() * 0.35 };
+  }
+  function draw(){
+    const c = rgb();
+    ctx.clearRect(0,0,W,H);
+    for (const l of lines){
+      const len = 20 + l.v * 14;
+      const g = ctx.createLinearGradient(l.x - len, 0, l.x, 0);
+      g.addColorStop(0, `rgba(${c},0)`); g.addColorStop(1, `rgba(${c},${l.o})`);
+      ctx.strokeStyle = g; ctx.lineWidth = l.w; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(l.x - len, l.y); ctx.lineTo(l.x, l.y); ctx.stroke();
+      ctx.fillStyle = `rgba(${c},${Math.min(1, l.o + .25)})`;
+      ctx.beginPath(); ctx.arc(l.x, l.y, l.w * 1.3, 0, Math.PI * 2); ctx.fill();
+      if (!still){
+        l.v += l.a; l.x += l.v;
+        if (l.x - len > W) Object.assign(l, mk(-10));
+      }
+    }
+    if (!still) requestAnimationFrame(draw);
+  }
+  addEventListener("resize", () => { size(); if (still) draw(); });
+  size(); draw();
+})();
+</script>
+</body>
+</html>
