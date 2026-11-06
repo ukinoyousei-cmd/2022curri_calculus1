@@ -242,6 +242,7 @@
 <script>
 /* =========================================================
    형성평가 목록 — 여기만 고치면 됩니다.
+   - round : 카드에 표시되는 회차 번호 (예: 3 → "형성평가 · 3회차")
    - href  : 풀이 페이지 파일 이름 (index.html과 같은 폴더 기준)
    - ready : 풀이 페이지를 올렸으면 true 로 바꾸세요 (false면 '준비 중' 표시)
    ========================================================= */
@@ -251,7 +252,7 @@ const UNITS = [
     color: "var(--green)", soft: "#EAF4E5",
     desc: "도함수의 부호로 함수의 증가·감소와 극값을 판단하고, 그래프의 개형을 그려 방정식·부등식·운동 문제에 활용하는 힘을 점검해요.",
     tests: [
-      { round: 2, title: "도함수의 활용", href: "calc1-diff-2.html", ready: false,
+      { round: 3, title: "도함수의 활용", href: "calc1-diff-2.html", ready: false,
         sub: "증가·감소부터 극값, 그래프의 개형과 그 활용까지",
         tags: ["함수의 증가·감소", "극대·극소", "최댓값·최솟값", "그래프의 개형", "방정식·부등식", "속도·가속도"] }
     ]
@@ -261,7 +262,7 @@ const UNITS = [
     color: "var(--navy)", soft: "#E8ECF7",
     desc: "미분의 역연산으로서 적분을 이해하고, 부정적분·정적분의 정의와 성질을 넓이와 이동 거리 문제까지 활용하는지 점검해요.",
     tests: [
-      { round: 1, title: "적분 단원 전체", href: "calc1-int-1.html", ready: false,
+      { round: 4, title: "적분 단원 전체", href: "calc1-int-1.html", ready: false,
         sub: "부정적분과 정적분부터 정적분의 활용(넓이·속도와 거리)까지",
         tags: ["부정적분의 정의", "적분상수", "정적분의 정의", "미적분의 기본정리", "정적분으로 정의된 함수", "곡선과 x축 사이 넓이", "두 곡선 사이 넓이", "속도와 거리"] }
     ]
@@ -305,7 +306,7 @@ function render(){
             const attrs = t.ready ? `href="${t.href}"` : 'aria-disabled="true"';
             return `<${tag} class="item ${t.ready ? '' : 'soon'}" ${attrs}>
               <div class="item-top">
-                <span class="item-no">형성평가 · ${u.name} ${t.round}회차</span>
+                <span class="item-no">형성평가 · ${t.round}회차</span>
                 <span class="badge ${t.ready ? 'open' : ''}">${t.ready ? '풀이 보기' : '준비 중'}</span>
               </div>
               <div class="item-title">${t.title}</div>
